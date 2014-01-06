@@ -80,7 +80,7 @@ If want the position of beginning of block, use it."
             (save-excursion
               (goto-char prev)
               (if (search-backward-regexp "\\({\\)[ \t]*$" nil t)
-                  (match-beginning 2)
+                  (match-beginning 1)
                 nil)))
            (end-of-prev1 (if (not prev1) nil
                    (condition-case nil
