@@ -124,7 +124,7 @@ of beginning of \"item1\"'s parent block."
                (save-excursion
                  (goto-char qbob)
                  (current-indentation)))))
-    (when pi
+    (if (not pi) (indent-line-to 0)
       (let ((ni (+ pi qml-indent-offset))
             (ci (current-indentation)))
         (if (not (eq ni ci)) (save-excursion (indent-line-to ni)))
