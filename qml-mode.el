@@ -6,6 +6,8 @@
       (qml-highlight-orchid "DarkOrchid")    ;#9932cc
       (qml-highlight-olive "OliveDrab")      ;#6b8e23
       (qml-highlight-red "red4")             ;#8b0000
+      (qml-highlight-violet "MediumPurple3") ;#8968cd
+      (qml-highlight-green "SeaGreen4")      ;#698b69
       )
 
   (defface qml-specifier-face
@@ -27,6 +29,16 @@
     `((t :foreground ,qml-highlight-red))
     "Face for package version.")
   (defvar qml-package-version-face 'qml-package-version-face)
+
+  (defface qml-property-def-keyword-face
+    `((t :foreground ,qml-highlight-violet))
+    "Face for \"property\" keyword of peroperty definition.")
+  (defvar qml-property-def-keyword-face 'qml-property-def-keyword-face)
+
+  (defface qml-basic-type-face
+    `((t :foreground ,qml-highlight-green))
+    "Face for qml baic type.")
+  (defvar qml-basic-type-face 'qml-basic-type-face)
   )
 
 (defvar qml-syntax-table
@@ -42,6 +54,9 @@
   (let* ((separator "\\|")
          (qml-directive-kwd
           (mapconcat 'identity '("import" "using") separator))
+         (qml-basic-type-kwd
+          (mapconcat 'identity '("int" "bool" "real" "double" "string"
+                                 "url" "list" "var" "alias") separator))
          )
     (list
      ;; preprocessor
@@ -70,6 +85,26 @@
                    "[ \t]*[:{]")
            '(3 font-lock-variable-name-face nil t)
            '(4 font-lock-variable-name-face nil t))
+
+     ;; property definition
+     (list (concat "\\(^[ \t]*\\|;[ \t]*\\|{[ \t]*\\)"
+                   "\\(property\\)[ \t]+"
+                   "\\(" qml-basic-type-kwd "\\)[ \t]+"
+                   "\\([a-zA-Z0-9]+\\)[ \t]*:"
+                   )
+           '(2 qml-property-def-keyword-face nil t) ;; keyword
+           '(3 qml-basic-type-face nil t) ;; type
+           '(4 font-lock-variable-name-face nil t) ;; property name
+           )
+
+     ;; function definition
+     (list (concat "\\(^[ \t]*\\|:[ \t]*\\)"
+                   "\\(function\\)[ \t]+"
+                   "\\([a-zA-Z0-9]+\\)?[ \t]*?("
+                   )
+           '(2 qml-property-def-keyword-face nil t) ;; keyword
+           ;;'(3 qml-basic-type-face nil t) ;; function name
+           )
      )))
 
 (defun qml-beginning-of-block-internal (prev cur)
