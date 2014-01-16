@@ -169,8 +169,7 @@ of beginning of \"item1\"'s parent block."
                                 (beginning-of-line)
                                 (point))
                 p)))
-    (if (not qbob)
-        (display-message-or-buffer "Not found beginning of block"))
+    (if (not qbob) (message "Not found beginning of block"))
     qbob))
 
 (defvar qml-indent-offset 2)
