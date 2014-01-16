@@ -8,6 +8,7 @@
       (qml-highlight-red "red4")             ;#8b0000
       (qml-highlight-violet "MediumPurple3") ;#8968cd
       (qml-highlight-green "SeaGreen4")      ;#698b69
+      (qml-highlight-royal-blue "RoyalBlue2");#436eee
       )
 
   (defface qml-specifier-face
@@ -39,6 +40,11 @@
     `((t :foreground ,qml-highlight-green))
     "Face for qml baic type.")
   (defvar qml-basic-type-face 'qml-basic-type-face)
+
+  (defface qml-function-keyword-face
+    `((t :foreground ,qml-highlight-royal-blue))
+    "Face for qml function and signal keyword.")
+  (defvar qml-function-keyword-face 'qml-function-keyword-face)
   )
 
 (defvar qml-syntax-table
@@ -54,15 +60,19 @@
   (let* ((separator "\\|")
          (qml-directive-kwd
           (mapconcat 'identity '("import" "using") separator))
+         (qml-specifier "[A-Z][a-zA-Z0-9_]*")
+         (qml-package "[a-zA-Z][a-zA-Z0-9_]*")
+         (qml-property "[a-z][a-zA-Z0-9_]*")
          (qml-basic-type-kwd
-          (mapconcat 'identity '("int" "bool" "real" "double" "string"
-                                 "url" "list" "var" "alias") separator))
+          (mapconcat 'identity
+                     (list "int" "bool" "real" "double" "string"
+                           "url" "var" "alias" qml-specifier)
+                     separator))
          )
     (list
      ;; preprocessor
      (list (concat "^[ \t]*\\(" qml-directive-kwd "\\)[ \t]+"
-                   "\\("
-                   "\\(\\(\\([a-zA-Z][a-zA-Z0-9]*\\)\\.?\\)*\\([a-zA-Z][a-zA-Z0-9]*\\)\\)" ;; packages
+                   "\\(" "\\(\\(\\(" qml-package "\\)\\.?\\)*\\(" qml-package "\\)\\)" ;; packages
                    "[ \t]+"
                    "\\(\\(\\([0-9]+\\)\\.?\\)*\\([0-9]+\\)\\)" ;; version
                    "\\|"
@@ -76,34 +86,48 @@
      ;; specifiers
      (list (concat "\\(^\\|\\*/\\|:[ \t]*\\)"
                    "[ \t]*"
-                   "\\([A-Z][a-zA-Z0-9]*\\)[ \t]*\\({\\|$\\)")
+                   "\\(" qml-specifier "\\)[ \t]*\\({\\|$\\)")
            2 qml-specifier-face)
 
-     ;; props
+     ;; properties
      (list (concat "\\(^[ \t]*\\|;[ \t]*\\|{[ \t]*\\)"
-                   "\\(\\([a-zA-Z][a-zA-Z0-9]*\\)\\.\\)?\\([a-z][a-zA-Z0-9]*\\)"
+                   "\\(\\([a-zA-Z][a-zA-Z0-9]*\\)\\.\\)?\\(" qml-property "\\)"
                    "[ \t]*[:{]")
            '(3 font-lock-variable-name-face nil t)
            '(4 font-lock-variable-name-face nil t))
 
      ;; property definition
      (list (concat "\\(^[ \t]*\\|;[ \t]*\\|{[ \t]*\\)"
-                   "\\(property\\)[ \t]+"
-                   "\\(" qml-basic-type-kwd "\\)[ \t]+"
-                   "\\([a-zA-Z0-9]+\\)[ \t]*:"
+                   "\\(\\(readonly\\|default\\) +\\)?\\(property\\)[ \t]+" ;; keyword
+                   "\\(\\(" qml-basic-type-kwd "\\)" ;; type
+                   "\\|"
+                   "\\(list\\)<\\(" qml-specifier "\\)>\\)[ \t]+" ;; list<type>
+                   "\\([a-zA-Z0-9_]+\\)[ \t]*:?" ;; property name
                    )
-           '(2 qml-property-def-keyword-face nil t) ;; keyword
-           '(3 qml-basic-type-face nil t) ;; type
-           '(4 font-lock-variable-name-face nil t) ;; property name
+           '(3 qml-property-def-keyword-face nil t) ;; keyword
+           '(4 qml-property-def-keyword-face nil t) ;; keyword
+           '(6 qml-basic-type-face nil t) ;; type
+           '(7 qml-basic-type-face nil t) ;; type
+           '(8 qml-basic-type-face nil t) ;; type
+           '(9 font-lock-variable-name-face nil t) ;; property name
            )
 
      ;; function definition
      (list (concat "\\(^[ \t]*\\|:[ \t]*\\)"
-                   "\\(function\\)[ \t]+"
-                   "\\([a-zA-Z0-9]+\\)?[ \t]*?("
+                   "\\(function\\)"
+                   "\\([ \t]+\\([a-zA-Z0-9]+\\)\\)?[ \t]*?("
                    )
-           '(2 qml-property-def-keyword-face nil t) ;; keyword
+           '(2 qml-function-keyword-face nil t) ;; keyword
            ;;'(3 qml-basic-type-face nil t) ;; function name
+           )
+
+     ;; signal definition
+     (list (concat "\\(^[ \t]*\\|:[ \t]*\\)"
+                   "\\(signal\\)[ \t]+"
+                   "\\([a-zA-Z0-9]+\\)"
+                   )
+           '(2 qml-function-keyword-face nil t) ;; keyword
+           ;;'(3 qml-basic-type-face nil t) ;; signal name
            )
      )))
 
