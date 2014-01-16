@@ -186,9 +186,13 @@ of beginning of \"item1\"'s parent block."
       (let ((ni (+ pi qml-indent-offset))
             (ci (current-indentation)))
         (if (not (eq ni ci)) (save-excursion (indent-line-to ni)))
+        (save-excursion
+          (beginning-of-line 0)
+          (if (string-match "^[ \t]+$"
+                            (buffer-substring (point-at-bol) (point-at-eol)))
+              (indent-line-to 0)))
         (let ((lbp (line-beginning-position)))
-          (if (< (- (point) lbp) ni) (goto-char (+ lbp ni))))))
-    ))
+          (if (< (- (point) lbp) ni) (goto-char (+ lbp ni))))))))
 
 (define-derived-mode qml-mode fundamental-mode "QML"
   "Mejor mode for Qt declarative UI (simple mode)"
