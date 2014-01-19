@@ -11,10 +11,10 @@
       (qml-highlight-royal-blue "RoyalBlue2");#436eee
       )
 
-  (defface qml-specifier-face
+  (defface qml-declaration-face
     `((t :foreground ,qml-highlight-blue))
-    "Face for element specifier.")
-  (defvar qml-specifier-face 'qml-specifier-face)
+    "Face for element declaration.")
+  (defvar qml-declaration-face 'qml-declaration-face)
 
   (defface qml-preprocessor-face
     `((t :foreground ,qml-highlight-orchid))
@@ -60,13 +60,13 @@
   (let* ((separator "\\|")
          (qml-directive-kwd
           (mapconcat 'identity '("import" "using") separator))
-         (qml-specifier "[A-Z][a-zA-Z0-9_]*")
+         (qml-declaration "[A-Z][a-zA-Z0-9_]*")
          (qml-package "[a-zA-Z][a-zA-Z0-9_]*")
          (qml-property "[a-z][a-zA-Z0-9_]*")
          (qml-basic-type-kwd
           (mapconcat 'identity
                      (list "int" "bool" "real" "double" "string"
-                           "url" "var" "alias" qml-specifier)
+                           "url" "var" "alias" qml-declaration)
                      separator))
          )
     (list
@@ -83,11 +83,11 @@
            '(3 qml-package-face nil t)
            '(7 qml-package-version-face nil t))
 
-     ;; specifiers
+     ;; declarations
      (list (concat "\\(^\\|\\*/\\|:[ \t]*\\)"
                    "[ \t]*"
-                   "\\(" qml-specifier "\\)[ \t]*\\({\\|$\\)")
-           2 qml-specifier-face)
+                   "\\(" qml-declaration "\\)[ \t]*\\({\\|$\\)")
+           2 qml-declaration-face)
 
      ;; properties
      (list (concat "\\(^[ \t]*\\|;[ \t]*\\|{[ \t]*\\)"
@@ -101,7 +101,7 @@
                    "\\(\\(readonly\\|default\\) +\\)?\\(property\\)[ \t]+" ;; keyword
                    "\\(\\(" qml-basic-type-kwd "\\)" ;; type
                    "\\|"
-                   "\\(list\\)<\\(" qml-specifier "\\)>\\)[ \t]+" ;; list<type>
+                   "\\(list\\)<\\(" qml-declaration "\\)>\\)[ \t]+" ;; list<type>
                    "\\([a-zA-Z0-9_]+\\)[ \t]*:?" ;; property name
                    )
            '(3 qml-property-def-keyword-face nil t) ;; keyword
