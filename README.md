@@ -10,5 +10,5 @@ Major mode of Emacs for qt declarative (QML) markup.
 
 Not highlighting javascript codes.
 
-###Indentation
+##Line Indentation
 default indent offset is 2.
