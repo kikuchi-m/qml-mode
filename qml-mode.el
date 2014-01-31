@@ -72,44 +72,58 @@
     (list
      ;; preprocessor
      (list (concat "^[ \t]*\\(" qml-directive-kwd "\\)[ \t]+"
-                   "\\(" "\\(\\(\\(" qml-package "\\)\\.?\\)*\\(" qml-package "\\)\\)" ;; packages
+                   "\\(?:" "\\(\\(?:\\(?:" qml-package "\\)\\.?\\)*\\(?:" qml-package "\\)\\)" ;; packages
                    "[ \t]+"
-                   "\\(\\(\\([0-9]+\\)\\.?\\)*\\([0-9]+\\)\\)" ;; version
+                   "\\(\\(?:\\(?:[0-9]+\\)\\.?\\)*\\(?:[0-9]+\\)\\)" ;; version
                    "\\|"
-                   "\\(\"[^ ]+\"\\)" ;; directory
+                   "\\(?:\"[^ \t].*\"\\)" ;; directory
+                   "\\(?:[ \t]+as[ \t]+\\([a-zA-Z0-9_]+\\)\\)?"
                    "\\)"
                    "[ \t]*;?$")
            '(1 qml-preprocessor-face nil t)
-           '(3 qml-package-face nil t)
-           '(7 qml-package-version-face nil t))
+           '(2 qml-package-face nil t)
+           '(3 qml-package-version-face nil t)
+           '(4 qml-package-face nil t) ;; directory qualifier
+           )
 
      ;; declarations
-     (list (concat "\\(^\\|\\*/\\|:[ \t]*\\)"
+     (list (concat "\\(?:^\\|\\*/\\|:[ \t]*\\)"
                    "[ \t]*"
-                   "\\(" qml-declaration "\\)[ \t]*\\({\\|$\\)")
-           2 qml-declaration-face)
+                   "\\(" qml-declaration "\\.\\)?\\(" qml-declaration "\\)[ \t]*\\({\\|$\\)")
+           '(1 qml-declaration-face nil t)
+           '(2 qml-declaration-face nil t))
 
      ;; properties
-     (list (concat "\\(^[ \t]*\\|;[ \t]*\\|{[ \t]*\\)"
-                   "\\(\\([a-zA-Z][a-zA-Z0-9]*\\)\\.\\)?\\(" qml-property "\\)"
+     (list (concat "\\(?:^[ \t]*\\|;[ \t]*\\|{[ \t]*\\)"
+                   "\\(?:\\([a-zA-Z][a-zA-Z0-9]*\\)\\.\\)?\\(" qml-property "\\)"
                    "[ \t]*[:{]")
-           '(3 font-lock-variable-name-face nil t)
-           '(4 font-lock-variable-name-face nil t))
+           '(1 font-lock-variable-name-face nil t)
+           '(2 font-lock-variable-name-face nil t))
 
      ;; property definition
-     (list (concat "\\(^[ \t]*\\|;[ \t]*\\|{[ \t]*\\)"
-                   "\\(\\(readonly\\|default\\) +\\)?\\(property\\)[ \t]+" ;; keyword
-                   "\\(\\(" qml-basic-type-kwd "\\)" ;; type
+     (list (concat "\\(?:^[ \t]*\\|;[ \t]*\\|{[ \t]*\\)"
+                   "\\(?:\\(readonly\\|default\\)[ \t]+\\)?\\(property\\)[ \t]+" ;; keyword
+                   "\\(?:\\(" qml-basic-type-kwd "\\)" ;; type
                    "\\|"
-                   "\\(list\\)<\\(" qml-declaration "\\)>\\)[ \t]+" ;; list<type>
-                   "\\([a-zA-Z0-9_]+\\)[ \t]*:?" ;; property name
+                   "\\(?:\\(" qml-declaration "\\)\\.\\(" qml-declaration "\\)\\)" ;; with qualifier
+                   "\\|"
+                   "\\(list\\)<\\(?:" ;; list<type>
+                   "\\(" qml-basic-type-kwd "\\)"
+                   "\\|"
+                   "\\(?:\\(" qml-declaration "\\)\\.\\(" qml-declaration "\\)\\)"
+                   "\\)>\\)[ \t]+" ;; end - list<type>
+                   "\\([a-zA-Z0-9_]+\\)[ \t]*\\(?::[ \t]*[^ \t\n\\.=;:&|$#^/*+-].*\\)?$" ;; property name
                    )
-           '(3 qml-property-def-keyword-face nil t) ;; keyword
-           '(4 qml-property-def-keyword-face nil t) ;; keyword
-           '(6 qml-basic-type-face nil t) ;; type
-           '(7 qml-basic-type-face nil t) ;; type
-           '(8 qml-basic-type-face nil t) ;; type
-           '(9 font-lock-variable-name-face nil t) ;; property name
+           '(1 qml-property-def-keyword-face nil t) ;; keyword
+           '(2 qml-property-def-keyword-face nil t) ;; keyword
+           '(3 qml-basic-type-face nil t) ;; type
+           '(4 qml-basic-type-face nil t) ;; with qualifier
+           '(5 qml-basic-type-face nil t) ;; with qualifier
+           '(6 qml-basic-type-face nil t) ;; list
+           '(7 qml-basic-type-face nil t) ;; list
+           '(8 qml-basic-type-face nil t) ;; list
+           '(9 qml-basic-type-face nil t) ;; list
+           '(10 font-lock-variable-name-face nil t) ;; property name
            )
 
      ;; function definition
