@@ -145,6 +145,11 @@
            )
      )))
 
+(defun qml-line-commentp (line)
+  (save-excursion
+    (goto-line line)
+    (string-match "^[ \t]*//" (buffer-substring (point) (point-at-eol)))))
+
 (defun qml-beginning-of-block-internal (prev cur)
   "This function used in `qml-beginning-of-block' function.
 If want the position of beginning of block, use it."
@@ -155,18 +160,18 @@ If want the position of beginning of block, use it."
               (if (search-backward-regexp "\\({\\|\\[\\)[ \t]*$" nil t)
                   (match-beginning 1)
                 nil)))
-           (end-of-prev1 (if (not prev1) nil
-                   (condition-case nil
-                       (save-excursion (goto-char prev1)
-                                       (forward-sexp)
-                                       (point))
-                     (error nil)))))
+           (end-of-prev1 (if prev1
+                             (condition-case nil
+                                 (save-excursion (goto-char prev1)
+                                                 (forward-sexp)
+                                                 (point))
+                               (error nil))
+                           nil)))
       (if (not prev1) nil
         (if (or (not end-of-prev1)
-                (and (> cur prev1)
-                     (< (save-excursion
-                          (goto-char cur) (end-of-line) (point))
-                        end-of-prev1)))
+                (and (not (qml-line-commentp (line-number-at-pos prev1)))
+                     (> cur prev1)
+                     (< (point-at-eol) end-of-prev1)))
             prev1
           (qml-beginning-of-block-internal prev1 cur))))))
 
@@ -177,16 +182,18 @@ If CUR is nil, try find beginning of block from current position.
 In the line CUR is in, an item is declared single line (like that
 \"Item { id:item1 ... }\" is in a line.), return the position
 of beginning of \"item1\"'s parent block."
-  (let* ((p (if (numberp cur) cur (point)))
+  (let* ((cur-point (if (numberp cur) cur (point)))
          (qbob (qml-beginning-of-block-internal
-                (save-excursion (goto-char p)
-                                (beginning-of-line)
-                                (point))
-                p)))
+                (save-excursion (goto-char cur-point) (point-at-bol))
+                cur-point)))
     (if (not qbob) (message "Not found beginning of block"))
     qbob))
 
 (defvar qml-indent-offset 2)
+
+(defun line-emptyp (&optional n)
+  (string-match "^[ \t]+$"
+                (buffer-substring (point-at-bol n) (point-at-eol n))))
 
 (defun qml-indent-line ()
   "Indent current line according to QML indentation rule."
@@ -200,11 +207,9 @@ of beginning of \"item1\"'s parent block."
       (let ((ni (+ pi qml-indent-offset))
             (ci (current-indentation)))
         (if (not (eq ni ci)) (save-excursion (indent-line-to ni)))
-        (save-excursion
-          (beginning-of-line 0)
-          (if (string-match "^[ \t]+$"
-                            (buffer-substring (point-at-bol) (point-at-eol)))
-              (indent-line-to 0)))
+        (if (line-emptyp 0) (save-excursion
+                              (beginning-of-line 0)
+                              (indent-line-to 0)))
         (let ((lbp (line-beginning-position)))
           (if (< (- (point) lbp) ni) (goto-char (+ lbp ni))))))))
 
