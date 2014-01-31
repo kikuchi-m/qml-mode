@@ -194,6 +194,12 @@ of beginning of \"item1\"'s parent block."
         (let ((lbp (line-beginning-position)))
           (if (< (- (point) lbp) ni) (goto-char (+ lbp ni))))))))
 
+(defvar qml-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-<tab>")
+      (lambda () (interactive) (indent-region (point-min) (point-max))))
+    map))
+
 (define-derived-mode qml-mode fundamental-mode "QML"
   "Mejor mode for Qt declarative UI (simple mode)"
   (interactive)
@@ -202,12 +208,7 @@ of beginning of \"item1\"'s parent block."
   (set (make-local-variable 'font-lock-defaults) '(qml-font-lock-keywords))
   (set (make-local-variable 'tab-width) qml-indent-offset)
   (set (make-local-variable 'indent-line-function) 'qml-indent-line)
-  (use-local-map (let ((map (make-sparse-keymap)))
-                    (define-key map (kbd "C-<tab>")
-                      (lambda ()
-                        (interactive)
-                        (indent-region (point-min) (point-max))))
-                    map))
+  (use-local-map qml-mode-map)
   (setq major-mode 'qml-mode)
   (setq mode-name "QML")
   (run-hooks 'qml-mode-hook)
