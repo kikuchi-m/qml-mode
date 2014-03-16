@@ -61,7 +61,7 @@
          (qml-directive-kwd
           (mapconcat 'identity '("import" "using") separator))
          (qml-declaration "[A-Z][a-zA-Z0-9_]*")
-         (qml-package "[a-zA-Z][a-zA-Z0-9_]*")
+         (qml-package "[A-Z][a-zA-Z0-9_]*")
          (qml-property "[a-z][a-zA-Z0-9_]*")
          (qml-basic-type-kwd
           (mapconcat 'identity
