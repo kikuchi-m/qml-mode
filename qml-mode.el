@@ -65,8 +65,11 @@
          (qml-property "[a-z][a-zA-Z0-9_]*")
          (qml-basic-type-kwd
           (mapconcat 'identity
-                     (list "int" "bool" "real" "double" "string"
-                           "url" "var" "alias" qml-declaration)
+                     (list "int" "bool" "real" "double" "string" "url" "var"
+                           "alias" "list" "enumeration"
+                           "color" "font" "matrix4x4" "quaternion" "vector2d"
+                           "vector3d" "vector4d" "date" "point" "size" "rect"
+                           qml-declaration (concat qml-declaration "\\(?:." qml-declaration "\\)?"))
                      separator))
          )
     (list
