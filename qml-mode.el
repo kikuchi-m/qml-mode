@@ -75,18 +75,21 @@
     (list
      ;; preprocessor
      (list (concat "^[ \t]*\\(" qml-directive-kwd "\\)[ \t]+"
-                   "\\(?:" "\\(\\(?:\\(?:" qml-package "\\)\\.?\\)*\\(?:" qml-package "\\)\\)" ;; packages
+                   "\\(?:\\(?:" "\\(\\(?:\\(?:" qml-package "\\)\\.?\\)*\\(?:" qml-package "\\)\\)" ;; packages
                    "[ \t]+"
                    "\\(\\(?:\\(?:[0-9]+\\)\\.?\\)*\\(?:[0-9]+\\)\\)" ;; version
                    "\\|"
                    "\\(?:\"[^ \t].*\"\\)" ;; directory
                    "\\(?:[ \t]+as[ \t]+\\([a-zA-Z0-9_]+\\)\\)?"
                    "\\)"
+                   "[ \t]*\\(?:as[ \t]+\\(" qml-package "\\)\\)?"
+                   "\\)"
                    "[ \t]*;?$")
            '(1 qml-preprocessor-face nil t)
            '(2 qml-package-face nil t)
            '(3 qml-package-version-face nil t)
            '(4 qml-package-face nil t) ;; directory qualifier
+           '(5 qml-package-face nil t) ;; alias
            )
 
      ;; declarations
