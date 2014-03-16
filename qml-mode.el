@@ -227,6 +227,7 @@ of beginning of \"item1\"'s parent block."
   (set (make-local-variable 'font-lock-defaults) '(qml-font-lock-keywords))
   (set (make-local-variable 'tab-width) qml-indent-offset)
   (set (make-local-variable 'indent-line-function) 'qml-indent-line)
+  (set (make-local-variable 'comment-start) "//")
   (use-local-map qml-mode-map)
   (setq major-mode 'qml-mode)
   (setq mode-name "QML")
