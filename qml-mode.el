@@ -135,7 +135,7 @@
      ;; function definition
      (list (concat "\\(^[ \t]*\\|:[ \t]*\\)"
                    "\\(function\\)"
-                   "\\([ \t]+\\([a-zA-Z0-9]+\\)\\)?[ \t]*?("
+                   "\\([ \t]+\\([a-zA-Z0-9_]+\\)\\)?[ \t]*?("
                    )
            '(2 qml-function-keyword-face nil t) ;; keyword
            ;;'(3 qml-basic-type-face nil t) ;; function name
@@ -144,7 +144,7 @@
      ;; signal definition
      (list (concat "\\(^[ \t]*\\|:[ \t]*\\)"
                    "\\(signal\\)[ \t]+"
-                   "\\([a-zA-Z0-9]+\\)"
+                   "\\([a-zA-Z0-9_]+\\)"
                    )
            '(2 qml-function-keyword-face nil t) ;; keyword
            ;;'(3 qml-basic-type-face nil t) ;; signal name
