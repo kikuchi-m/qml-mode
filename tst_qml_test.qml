@@ -2,35 +2,49 @@ import QtQuick 2.2
 import QtQuick.Controls 1.1
 import QtTest 1.0
 
-TestCase {
-  name: "QML Test Sample"
+import "../my-qml-lib"
+import "../external"
 
-  property MyQmlType testObj
-  property var testObjFactory: Qt.createComponent("MyQmlType.qml")
+MyQmlType {
+  id: testObj
 
-  SignalSpy {
-    id: testObjMySignalSpy
-    target: testObj
-    signalName: "mySignal"
-  }
+  TestCase {
+    name: "QML Test Sample"
+
+    property Deps deps
+    property var depsFactory: Qt.createComponent("Deps.qml")
+
+    property QmlUtil util
+    property var utilFactory: Qt.createComponent("../external/QmlUtil.qml")
+
+    SignalSpy {
+      id: depsCreatedSpy
+      target: deps
+      signalName: "created"
+    }
 
     function setup() {
-    if (testObj != null) {
-      teardown();
+      if (deps != null) {
+        teardown()
+      }
+      verify(depsFactory != null)
+      compare(depsFactory.status, Component.Ready)
+      deps = depsFactory.createObject(this)
     }
-    testObj = testObjFactory.createObject(this)
-  }
 
-  function teardown() {
-    if (testObj != null) {
-      testObj.destroy()
-      testObj = null
+    function teardown() {
+      if (deps != null) {
+        deps.destroy()
+        deps = null
+      }
     }
-  }
 
-  function test_should_do_something() {
-    setup()
-    // test code (assertion......)
-    teardown()
+    function test_should_do_something() {
+      setup()
+      // test code (assertion......)
+
+      compare(testObj.number, 17)
+      teardown()
+    }
   }
 }
