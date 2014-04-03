@@ -207,6 +207,7 @@
   (qml-test-insert-setup-teardown-internal property-name-list "%s"
                                            'qml-test-setup-property-stab n n))
 
+(defalias 'qml-test-insert-setup-function 'qml-test-insert-setup)
 (defun qml-test-insert-setup (&optional n property-name-list)
   (interactive "P")
   (qml-test-insert-setup-teardown-internal property-name-list
@@ -219,6 +220,7 @@
   (qml-test-insert-setup-teardown-internal property-name-list "%s"
                                            'qml-test-teardown-property-stab n n))
 
+(defalias 'qml-test-insert-teardown-function 'qml-test-insert-teardown)
 (defun qml-test-insert-teardown (&optional n property-name-list)
   (interactive "P")
   (qml-test-insert-setup-teardown-internal property-name-list
