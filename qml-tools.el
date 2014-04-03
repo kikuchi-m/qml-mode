@@ -257,10 +257,14 @@
           (format "target: %s\n" target)
           (format "signalName: \"%s\"\n}\n" signal)))
 
-(defun qml-test-insert-signal-spy ()
+(defun qml-test-insert-signal-spy (&optional target signal-name)
   (interactive)
-  (-insert-stab (qml-test-signal-spy-stab
-                 (-string-prompt "Taget: ")
-                 (-string-prompt "Signal name: "))))
+  (let* ((tar (if (stringp target) target nil))
+         (sig (if (stringp signal-name) signal-name nil))
+         (tar-name (if (and tar sig) (cons tar sig)
+                     (message "%s %s" tar sig)
+                     (cons (-string-prompt "Taget: " nil tar)
+                           (-string-prompt "Signal name: " nil sig)))))
+    (-insert-stab (qml-test-signal-spy-stab (car tar-name) (cdr tar-name)))))
 
 (provide 'qml-tools)
