@@ -98,10 +98,10 @@
 ;; common - reading string prompt which does not allow empty by default
 (defun -string-prompt (prompt &optional allow-empty default-value)
   (if allow-empty
-      (read-string prompt nil default-value)
+      (read-string prompt default-value)
     (let ((cont t) (in) (prompt1 prompt))
       (while cont
-        (setq in (read-string prompt1 nil default-value))
+        (setq in (read-string prompt1 default-value))
         (if (setq cont (string-equal in ""))
             (setq prompt1 (concat "Cannot set empty. " prompt))))
       in)))
