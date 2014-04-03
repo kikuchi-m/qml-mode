@@ -240,10 +240,11 @@
           "setup()\n\n"
           "teardown()\n}\n"))
 
-(defun qml-test-insert-test-function ()
+(defun qml-test-insert-test-function (&optional name)
   (interactive)
   (-insert-stab (qml-test-function-stab
-                 (-string-prompt "Function name (instead \"test_\" prefix): ")))
+                 (if (stringp name) name
+                   (-string-prompt "Function name (instead \"test_\" prefix): "))))
   (beginning-of-line -2)
   (indent-for-tab-command))
 
