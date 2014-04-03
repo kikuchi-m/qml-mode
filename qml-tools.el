@@ -83,7 +83,7 @@
 ;;   `qml-test-insert-test-function'
 ;;     prompt: function name without "test_" prefix
 ;;
-;;   `qml-tset-insert-signal-spy'
+;;   `qml-test-insert-signal-spy'
 ;;     prompt: target object (id) and siganal name to spy
 ;; 
 
