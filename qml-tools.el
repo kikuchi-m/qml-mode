@@ -249,3 +249,5 @@
   (-insert-stab (qml-test-signal-spy-stab
                  (-string-prompt "Taget: ")
                  (-string-prompt "Signal name: "))))
+
+(provide 'qml-tools)
