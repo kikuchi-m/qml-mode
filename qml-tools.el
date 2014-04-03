@@ -202,12 +202,22 @@
              (mapconcat stab-fun name-list "\n")))
     name-list))
 
+(defun qml-test-insert-setup-property (&optional n property-name-list)
+  (interactive "p")
+  (qml-test-insert-setup-teardown-internal property-name-list "%s"
+                                           'qml-test-setup-property-stab n n))
+
 (defun qml-test-insert-setup (&optional n property-name-list)
   (interactive "P")
   (qml-test-insert-setup-teardown-internal property-name-list
                                            "function setup() {\n%s}\n"
                                            'qml-test-setup-property-stab
                                            n n))
+
+(defun qml-test-insert-teardown-property (&optional n property-name-list)
+  (interactive "p")
+  (qml-test-insert-setup-teardown-internal property-name-list "%s"
+                                           'qml-test-teardown-property-stab n n))
 
 (defun qml-test-insert-teardown (&optional n property-name-list)
   (interactive "P")
