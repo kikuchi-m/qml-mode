@@ -2,18 +2,18 @@
 ;; for Qt ver. 5.2
 
 ;; QML preprocessors
-;; 
+;;
 ;; `qml-insert-preprocessors' function inserts preprocessors of importing
 ;; package (like "import QtQtuick 2.2") at current position.
-;; 
-;; Preprocessors are defined by `qml-preprocessor-alist', 
+;;
+;; Preprocessors are defined by `qml-preprocessor-alist',
 ;; default values are below:
 ;;     ("QtQuick" . "2.2")
 ;;     ("QtQuick.Controls" . "1.1")
 ;;     ("QtQuick.Layouts" . "1.1")
-;; 
+;;
 ;; (each element must be tuple)
-;; 
+;;
 ;; If you want to add a package, call `qml-add-preprocessor' function,
 ;; which require two arguments (package and version by string).
 ;; When called this, sorts `qml-preprocessor-alist' by package name with asc.
@@ -21,8 +21,8 @@
 ;; ex:
 ;;     (qml-add-preprocessor "QtQuick.Controls.Styles" "1.1")
 ;;     (qml-remove-preprocessor "QtQuick.Controls")
-;; 
-;; Basic packages instead default: 
+;;
+;; Basic packages instead default:
 ;;     QtQuick.Controls.Styles 1.1
 ;;     QtQuick.Dialogs 1.1
 ;;     QtQuick.Window 2.0
@@ -63,10 +63,10 @@
           qml-preprocessor-alist))
 
 
-;; QML Test 
+;; QML Test
 ;;
 ;; Stabs for testing custom Qml type.
-;; 
+;;
 ;; Main use of interactive functions:
 ;;   `qml-test-insert-property-declaration'
 ;;     prompt: number of properies, and each Qml type and name
@@ -85,7 +85,7 @@
 ;;
 ;;   `qml-test-insert-signal-spy'
 ;;     prompt: target object (id) and siganal name to spy
-;; 
+;;
 
 ;; common - insert stab and indent region
 (defun -insert-stab (stab)
@@ -161,6 +161,10 @@
     type-name-list))
 
 (defun qml-test-insert-property-declaration (&optional num no-factory with-dir)
+  "Snippet of QML property declaration (like \"propety MyQmlType myProperty\").
+First optional argument NUM is number of properties to declare. If nil or not a number, ask it.
+If seconod optional argument NO-FACTORY is not nil, does not insert factory stab.
+If third optional argument WITH-DIR is not nil, ask directory path of the type of property to declare."
   (interactive "P")
   (let* ((tn-list (qml-test-property-prompt num nil with-dir)))
     (-insert-stab
@@ -173,10 +177,12 @@
     tn-list))
 
 (defun qml-test-insert-property-declaration1 (&optional num no-factory)
+  "Call `qml-test-insert-property-declaration' with third argument t."
   (interactive "P")
   (qml-test-insert-property-declaration num no-factory t))
 
 (defun qml-test-insert-property-declaration-no-factory (&optional num)
+  "Call `qml-test-insert-property-declaration' without factory declaration."
   (interactive "P")
   (qml-test-insert-property-declaration num t))
 
@@ -203,12 +209,19 @@
     name-list))
 
 (defun qml-test-insert-setup-property (&optional n property-name-list)
+  "Snippet of code to setup property for QML test.
+Reference `qml-test-insert-property-declaration' too."
   (interactive "p")
   (qml-test-insert-setup-teardown-internal property-name-list "%s"
                                            'qml-test-setup-property-stab n n))
 
-(defalias 'qml-test-insert-setup-function 'qml-test-insert-setup)
+(defalias 'qml-test-insert-setup-function 'qml-test-insert-setup
+  "`qml-test-insert-setup'")
+
 (defun qml-test-insert-setup (&optional n property-name-list)
+  "Snippet of function to setup QML test.
+If first optional argument N is not nil, insert code to setup properties
+with prompt to ask its name."
   (interactive "P")
   (qml-test-insert-setup-teardown-internal property-name-list
                                            "function setup() {\n%s}\n"
@@ -216,12 +229,19 @@
                                            n n))
 
 (defun qml-test-insert-teardown-property (&optional n property-name-list)
+  "Snippet of code to teardown property for QML test.
+Reference `qml-test-insert-property-declaration' too."
   (interactive "p")
   (qml-test-insert-setup-teardown-internal property-name-list "%s"
                                            'qml-test-teardown-property-stab n n))
 
-(defalias 'qml-test-insert-teardown-function 'qml-test-insert-teardown)
+(defalias 'qml-test-insert-teardown-function 'qml-test-insert-teardown
+  "`qml-test-insert-teardown'")
+
 (defun qml-test-insert-teardown (&optional n property-name-list)
+  "Snippet of function to teardown QML test.
+If first optional argument N is not nil, insert code to teardown properties
+with prompt to ask its name."
   (interactive "P")
   (qml-test-insert-setup-teardown-internal property-name-list
                                            "function teardown() {\n%s}\n"
@@ -229,6 +249,7 @@
                                            n n))
 
 (defun qml-test-insert-setup-teardown (&optional n property-name-list)
+  "See `qml-test-insert-setup' and `qml-test-insert-teardown'."
   (interactive "P")
   (let* ((property-name-list (qml-test-insert-setup n property-name-list)))
     (insert "\n")
@@ -241,6 +262,8 @@
           "teardown()\n}\n"))
 
 (defun qml-test-insert-test-function (&optional name)
+  "Snippet of QML test function.
+If optional argument NAME is nil, prompt ask funtion name."
   (interactive)
   (-insert-stab (qml-test-function-stab
                  (if (stringp name) name
@@ -258,6 +281,9 @@
           (format "signalName: \"%s\"\n}\n" signal)))
 
 (defun qml-test-insert-signal-spy (&optional target signal-name)
+  "Snippet of static declaration of signal spy.
+If both optional arguments TARGET and SIGNAL-NAME are non-nil,
+insert declaration without asking itsm, otherwise, ask target and signal name."
   (interactive)
   (let* ((tar (if (stringp target) target nil))
          (sig (if (stringp signal-name) signal-name nil))
