@@ -240,4 +240,8 @@ of beginning of \"item1\"'s parent block."
   (run-hooks 'qml-mode-hook)
   )
 
+(dolist (associattions (list (cons "\\.qml\\'"       'qml-mode)
+                             (cons "\\.qmltypes\\'"  'qml-mode)))
+  (add-to-list 'auto-mode-alist associattions))
+
 (provide 'qml-mode)
