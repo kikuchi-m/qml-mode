@@ -1,5 +1,5 @@
 ;; QML mark up supoprt tools
-;; for Qt ver. 5.2
+;; for Qt ver. 5.x
 
 ;; QML preprocessors
 ;;
@@ -68,18 +68,6 @@
 ;; Stabs for testing custom Qml type.
 ;;
 ;; Main use of interactive functions:
-;;   `qml-test-insert-property-declaration'
-;;     prompt: number of properies, and each Qml type and name
-;;
-;;   `qml-test-insert-setup'
-;;     prompt: number of properies to set up, and each name
-;;
-;;   `qml-test-insert-teardown'
-;;     prompt: number of properies to tear down, and each name
-;;
-;;   `qml-test-insert-setup-teardown'
-;;     prompt: as well as two above
-;;
 ;;   `qml-test-insert-test-function'
 ;;     prompt: function name without "test_" prefix
 ;;
@@ -105,155 +93,6 @@
         (if (setq cont (string-equal in ""))
             (setq prompt1 (concat "Cannot set empty. " prompt))))
       in)))
-
-;; property
-(defun qml-test-property-stab (qml-type prop-name dir &optional no-factory)
-  (let ((prop
-         (format "property %s %s" qml-type prop-name)))
-    (if no-factory
-        (concat prop "\n")
-      (concat prop "\n"
-              (format "property var %sFactory: Qt.createComponent(\"%s%s.qml\")\n"
-                      prop-name (if dir (concat dir "/") "") qml-type)))))
-
-(defun qml-test-property-prompt (&optional num no-qml-type with-dir)
-  (let* ((num
-          (if (and (numberp num) (> num 0))
-              num
-            (let ((cont t) (num) (prompt "How many properties?: "))
-              (while cont
-                (setq num (read-number prompt 1))
-                (if (setq cont (<= num 0))
-                    (setq prompt "Must be over 0: ")))
-              num)))
-         (type-name-list
-          (let ((i 0) (tn))
-            (while (< i num)
-              (setq i (1+ i))
-              (let ((dir (when with-dir
-                           (let* ((n (1- (if qml-import-dir-list
-                                             (read-number
-                                              (concat (format "Directory(%s)  " i)
-                                                      "0: (input new) / "
-                                                      (let ((i 0))
-                                                        (mapconcat
-                                                         (lambda (d)
-                                                           (let ((index (number-to-string (setq i (1+ i)))))
-                                                             (concat index ": " d)))
-                                                         qml-import-dir-list " / ")))
-                                              1)
-                                           0)))
-                                  (d (if (> 0 n) nil (nth n qml-import-dir-list))))
-                             (if d d
-                               (let ((in (read-string (format "Directory(%s)  new directory: " i))))
-                                 (if (string-match "^[ \t]*$" in) nil
-                                   (setq qml-import-dir-list
-                                         (cons in qml-import-dir-list))
-                                   (message "%s" qml-import-dir-list)
-                                   in))))))
-                    (type (if no-qml-type
-                              nil
-                            (-string-prompt (format "Qml type(%s): " i))))
-                    (name (-string-prompt (format "propety name(%s): " i) nil (format "prop%s" i))))
-                (message "%s %s %s" dir type name)
-                (add-to-list 'tn (list type name dir))))
-            (reverse tn))))
-    type-name-list))
-
-(defun qml-test-insert-property-declaration (&optional num no-factory with-dir)
-  "Snippet of QML property declaration (like \"propety MyQmlType myProperty\").
-First optional argument NUM is number of properties to declare. If nil or not a number, ask it.
-If seconod optional argument NO-FACTORY is not nil, does not insert factory stab.
-If third optional argument WITH-DIR is not nil, ask directory path of the type of property to declare."
-  (interactive "P")
-  (let* ((tn-list (qml-test-property-prompt num nil with-dir)))
-    (-insert-stab
-     (reduce (lambda (acc tn)
-               (concat acc
-                       (qml-test-property-stab (car tn) (cadr tn) (caddr tn) no-factory)
-                       "\n"))
-             tn-list
-             :initial-value ""))
-    tn-list))
-
-(defun qml-test-insert-property-declaration1 (&optional num no-factory)
-  "Call `qml-test-insert-property-declaration' with third argument t."
-  (interactive "P")
-  (qml-test-insert-property-declaration num no-factory t))
-
-(defun qml-test-insert-property-declaration-no-factory (&optional num)
-  "Call `qml-test-insert-property-declaration' without factory declaration."
-  (interactive "P")
-  (qml-test-insert-property-declaration num t))
-
-;; setup / teardown
-(defun qml-test-setup-property-stab (prop-name)
-  (concat (format "if (%s != null) {\n" prop-name)
-          "teardown()\n}\n"
-          (format "verify(%sFactory != null)\n" prop-name)
-          (format "compare(%sFactory.status, Component.Ready)\n" prop-name)
-          (format "%s = %sFactory.createObject(this)\n" prop-name prop-name)))
-
-(defun qml-test-teardown-property-stab (prop-name)
-  (concat (format "if (%s != null) {\n" prop-name)
-          (format "%s.destroy()\n" prop-name)
-          (format "%s = null\n}\n" prop-name)))
-
-(defun qml-test-insert-setup-teardown-internal (property-name-list fun-format stab-fun &optional num prompt)
-  (let* ((name-list (if property-name-list property-name-list
-                      (when (or num prompt)
-                        (mapcar 'cadr (qml-test-property-prompt num t))))))
-    (-insert-stab
-     (format fun-format
-             (mapconcat stab-fun name-list "\n")))
-    name-list))
-
-(defun qml-test-insert-setup-property (&optional n property-name-list)
-  "Snippet of code to setup property for QML test.
-Reference `qml-test-insert-property-declaration' too."
-  (interactive "p")
-  (qml-test-insert-setup-teardown-internal property-name-list "%s"
-                                           'qml-test-setup-property-stab n n))
-
-(defalias 'qml-test-insert-setup-function 'qml-test-insert-setup
-  "`qml-test-insert-setup'")
-
-(defun qml-test-insert-setup (&optional n property-name-list)
-  "Snippet of function to setup QML test.
-If first optional argument N is not nil, insert code to setup properties
-with prompt to ask its name."
-  (interactive "P")
-  (qml-test-insert-setup-teardown-internal property-name-list
-                                           "function setup() {\n%s}\n"
-                                           'qml-test-setup-property-stab
-                                           n n))
-
-(defun qml-test-insert-teardown-property (&optional n property-name-list)
-  "Snippet of code to teardown property for QML test.
-Reference `qml-test-insert-property-declaration' too."
-  (interactive "p")
-  (qml-test-insert-setup-teardown-internal property-name-list "%s"
-                                           'qml-test-teardown-property-stab n n))
-
-(defalias 'qml-test-insert-teardown-function 'qml-test-insert-teardown
-  "`qml-test-insert-teardown'")
-
-(defun qml-test-insert-teardown (&optional n property-name-list)
-  "Snippet of function to teardown QML test.
-If first optional argument N is not nil, insert code to teardown properties
-with prompt to ask its name."
-  (interactive "P")
-  (qml-test-insert-setup-teardown-internal property-name-list
-                                           "function teardown() {\n%s}\n"
-                                           'qml-test-teardown-property-stab
-                                           n n))
-
-(defun qml-test-insert-setup-teardown (&optional n property-name-list)
-  "See `qml-test-insert-setup' and `qml-test-insert-teardown'."
-  (interactive "P")
-  (let* ((property-name-list (qml-test-insert-setup n property-name-list)))
-    (insert "\n")
-    (qml-test-insert-teardown n property-name-list)))
 
 ;; test function
 (defun qml-test-function-stab (fun-name)
